@@ -20,13 +20,7 @@ public class QuizServerLauncher {
 			// 4. Register/bind the server object on the registry
 			// though the registry might be on a different machine
 			String registryHost = "//localhost/"; // local host always refers to this 'local' machine
-			String serviceName = "echo";
-			Naming.rebind(registryHost+serviceName, myServer);
-			serviceName = "dateTime"; // wanted to have multiple services available
-			Naming.rebind(registryHost+serviceName, myServer); // on the one server 
-			serviceName = "calculate"; 
-			Naming.rebind(registryHost+serviceName, myServer); 
-			serviceName = "findFile"; 
+			String serviceName = "quizServer"; 
 			Naming.rebind(registryHost+serviceName, myServer); 
 			
 		} catch (MalformedURLException ex) {

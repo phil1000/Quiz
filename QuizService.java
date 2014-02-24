@@ -2,7 +2,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * an implementation of the echo service.
+ * an implementation of the quiz service.
  */
 public interface QuizService extends Remote {
 	/**
@@ -10,8 +10,6 @@ public interface QuizService extends Remote {
 	 * @param s a string
 	 * @return the same string passed as parameter
 	 */
-	 public String echo(String s) throws RemoteException; // do i actually need public?
-	 public String dateTime() throws RemoteException;
-	 public int calculator(int x, int y, CalculationTypes c) throws RemoteException;
-	 public String findFile(String fileName) throws RemoteException;
+	 public Quiz getQuizStub(String name) throws RemoteException;
+	 public void addQuiz(Quiz newQuiz) throws RemoteException;
 }

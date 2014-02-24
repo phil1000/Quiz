@@ -5,7 +5,7 @@ public class QuestionImpl implements Question, Serializable {
 	private int id;
 	private String question;
 	private String answer;
-	private String[][] options = new String[4][2]; // I can have a maximum of four options A->D, each with textual description
+	private String[][] options = new String[4][2]; // I can have a maximum of four options A->D, each with a textual description
 	
 	public QuestionImpl(int id) {
 		this.id = id;
