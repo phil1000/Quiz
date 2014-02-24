@@ -1,0 +1,1 @@
+public enum CalculationTypes { ADD, SUBTRACT, MULTIPLY, DIVIDE}; // enums are serializable and so can be used in RMI calls
