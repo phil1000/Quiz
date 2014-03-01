@@ -135,13 +135,31 @@ public class QuizServerSetupClient {
 			}
 			
 			System.out.println("Please enter the correct answer for question:" + questionText + " i.e. enter C if Bratislava was option C");
-			String correctAnswer = System.console().readLine();
-			
-			Question newQuestion = new QuestionImpl(questionCount, questionText, correctAnswer.toUpperCase(), options);
+			String correctAnswer = getAndFormatValidAnswer(System.console().readLine());
+			Question newQuestion = new QuestionImpl(questionCount, questionText, correctAnswer, options);
 			myQuestions.add(newQuestion);
 			
 			questionCount++;
 		}
+	}
+	
+	private String getAndFormatValidAnswer(String correctAnswer) {
+
+			boolean validAnswer=false;
+			while (validAnswer==false) {
+				correctAnswer = correctAnswer.substring(0, 1); // just take first character and check if it is A->D
+				correctAnswer = correctAnswer.toUpperCase(); // upper case it
+				if ( (correctAnswer.equals("A")) 	|| 
+						(correctAnswer.equals("B"))		||
+							(correctAnswer.equals("C"))	||
+								(correctAnswer.equals("D")) ) {
+					validAnswer=true;
+					break;
+				}
+				System.out.println("Invalid answer, please enter A->D");
+				correctAnswer=System.console().readLine();
+			}
+			return correctAnswer;
 	}
 	
 	class SortbyId implements Comparator<Quiz> {

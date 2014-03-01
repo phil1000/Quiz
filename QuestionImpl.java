@@ -49,6 +49,16 @@ public class QuestionImpl implements Question, Serializable {
 	}
 
 	@Override
+	public void printOptions() {
+		for (int i=0;i<options.length;i++) {
+			for (int j=0;j<options[i].length;j++) {
+				System.out.print(options[i][j] + ":");
+			}
+			System.out.println("");
+		}
+	}
+	
+	@Override
 	public void setOptions(String[][] options) {
 		for (int i=0;i<options.length;i++) {
 			for (int j=0;j<options[i].length;j++) {

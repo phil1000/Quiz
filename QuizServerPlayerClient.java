@@ -84,18 +84,13 @@ public class QuizServerPlayerClient {
 		List<Question> myQuestions = quizSelected.getQuestions();
 
 		for (Question q : myQuestions) {
-			System.out.println(q.getQuestion());
+			System.out.println("Question" + q.getId() + ". " + q.getQuestion());
 			System.out.println("The options are:");
-			String[][] options = q.getOptions();
-			for (int i=0;i<options.length;i++) {
-				for (int j=0;j<options[i].length;j++) {
-					System.out.print(options[i][j] + ":");
-				}
-				System.out.println("");
-			}
+			q.printOptions();
 			
 			System.out.println("Please enter one of: A, B, C or D");
 			String response = System.console().readLine();
+			response = response.substring(0, 1); // just take first character
 			if ( q.checkAnswer(response.toUpperCase()) ) {
 				System.out.println("Correct");
 				score++;

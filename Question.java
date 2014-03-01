@@ -47,6 +47,12 @@ public interface Question {
 	String[][] getOptions();
 	
 	/**
+     * Prints available options for this question.
+     *
+     */
+	void printOptions();
+	
+	/**
      * Sets the answer options for this question.
      *
      * @param options a matrix containing A, option 1: B, option 2 etc
