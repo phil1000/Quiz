@@ -43,32 +43,22 @@ public class QuizServerPlayerClient {
 
 		Quiz quizSelected=null;
 		
-		List<Quiz> availableQuizzes = quizService.getAvailableQuizzes();
+		QuizList availableQuizzes = quizService.getAvailableQuizzes();
 		if (availableQuizzes==null) {
-			System.out.println("There are no quizzes to play, sorry");
+			System.out.println("No quizzes found");
 			return null;
 		}
 		
-		System.out.println("Here is a list of available quizzes");
-		Collections.sort(availableQuizzes, new SortbyId());
-		for (Quiz q : availableQuizzes) {
-			System.out.println(q.getId() + ":" + q.getName());
-		}
-		
-		System.out.println("Please enter id of quiz you want to play e.g. 1, 2 ...");
+		System.out.println("The available quizzes are as follows, please enter id of the quiz you want to play");
+		availableQuizzes.print();
+
 		int response = Integer.parseInt(System.console().readLine());
 		
-		// check whether the id provided relates to an existing quiz
-		for (Quiz q : availableQuizzes) {
-			if (response==q.getId()) {
-				quizSelected = q;
-				break;
-			}
-		}
-		
-		if (quizSelected!=null) return quizSelected;
-		else {
-			System.out.println("Invalid Selection");
+		Quiz myQuiz=availableQuizzes.get(response);
+		if (myQuiz!=null) {
+			return myQuiz;
+		} else {
+			System.out.println("Sorry but you have entered an invalid quiz id");
 			return null;
 		}
 	}
@@ -102,15 +92,6 @@ public class QuizServerPlayerClient {
 		System.out.println("Quiz is completed and your final score is " + score);	
 		myPlayer.updateScore(score);
 		//quizService.updateQuiz(myPlayer, quizSelected);
-	}
-	
-	class SortbyId implements Comparator<Quiz> {
-		@Override
-		public int compare(Quiz a, Quiz b) {
-			if ( a.getId() > b.getId() ) return 1;
-			if ( a.getId() < b.getId() ) return -1;
-			else return 0;
-		}
 	}
 	
 	public static void main(String[] args) {		

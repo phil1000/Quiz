@@ -13,6 +13,6 @@ public interface QuizService extends Remote {
 	 */
 	 public Quiz getQuizStub(String name) throws RemoteException;
 	 public void addQuiz(Quiz newQuiz) throws RemoteException;
-	 public Player closeQuiz(Quiz quizToBeClosed) throws RemoteException;
-	 public List<Quiz> getAvailableQuizzes() throws RemoteException;
+	 public Player closeQuiz(int id) throws RemoteException;
+	 public QuizList getAvailableQuizzes() throws RemoteException;
 }

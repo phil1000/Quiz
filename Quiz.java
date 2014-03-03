@@ -1,6 +1,8 @@
 import java.util.List;
 /**
- * A class to represent a quiz containing up to 5 questions
+ * An interface to represent a quiz containing up to 5 questions
+ * this quiz will be stored within a linked list and so also contains 
+ * getNext and setNext methods
  * <p/>
  * A Quiz has a unique ID, a name and a set of questions
  */
@@ -11,6 +13,34 @@ public interface Quiz {
      * @return the id of the Quiz.
      */
     int getId();
+	
+	/**
+     * Returns the address of nextQuiz.
+     *
+     * @return pointer to next Quiz.
+     */
+    Quiz getNext();
+	
+	/**
+     * Set a pointer to next Quiz in list.
+     *
+     * @param pointer to next Quiz.
+     */
+    void setNext(Quiz nextQuiz);
+	
+	/**
+     * Returns the address of priorQuiz.
+     *
+     * @return pointer to prior Quiz.
+     */
+    Quiz getPrior();
+	
+	/**
+     * Set a pointer to prior Quiz in list.
+     *
+     * @param pointer to prior Quiz.
+     */
+    void setPrior(Quiz priorQuiz);
 	
 	/**
      * Returns the name of the Quiz.

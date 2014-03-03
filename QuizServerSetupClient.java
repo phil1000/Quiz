@@ -72,41 +72,30 @@ public class QuizServerSetupClient {
 	
 	public void closeQuiz(QuizService quizService) throws RemoteException {
 
-		List<Quiz> availableQuizzes = quizService.getAvailableQuizzes();
+		QuizList availableQuizzes = quizService.getAvailableQuizzes();
 		if (availableQuizzes==null) {
 			System.out.println("No quizzes found");
 			return;
 		}
 		
-		Collections.sort(availableQuizzes, new SortbyId());
-		
 		System.out.println("The available quizzes are as follows, please enter id of quiz to close e.g. 1, 2 etc");
-		for (Quiz q : availableQuizzes) {
-			System.out.println(q.getId() + ":" + q.getName());
-		}
+		availableQuizzes.print();
 		
 		System.out.println("Please enter id of quiz to close e.g. 1, 2 etc");
 		int response = Integer.parseInt(System.console().readLine());
 		
-		Quiz quizToBeClosed=null; // check whether the id provided relates to an existing quiz
-		for (Quiz q : availableQuizzes) {
-			if (response==q.getId()) {
-				quizToBeClosed = q;
-				break;
-			}
-		}
-		
-		if (quizToBeClosed!=null) {
-			Player winner = quizService.closeQuiz(quizToBeClosed);
+		if (availableQuizzes.get(response)!=null) {
+			Player winner = quizService.closeQuiz(response);
 			if (winner!=null) {
 				System.out.println("The winner was " + winner.getName());
 				System.out.println(" and their score was " + winner.getScore());
 			} else {
-				System.out.println("There were no players for that game");
+				System.out.println("There were no players for that game or quiz has already been deleted");
 			}
 		} else {
 			System.out.println("Sorry but you have entered an invalid quiz id");
 		}
+
 	}
 	
 	public void getQuestions(List<Question> myQuestions) {
@@ -160,15 +149,6 @@ public class QuizServerSetupClient {
 				correctAnswer=System.console().readLine();
 			}
 			return correctAnswer;
-	}
-	
-	class SortbyId implements Comparator<Quiz> {
-		@Override
-		public int compare(Quiz a, Quiz b) {
-			if ( a.getId() > b.getId() ) return 1;
-			if ( a.getId() < b.getId() ) return -1;
-			else return 0;
-		}
 	}
 	
 	public static void main(String[] args) {		

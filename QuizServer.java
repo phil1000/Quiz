@@ -27,8 +27,10 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 	private static final String FILENAME = "quizzes.txt";
 	private int latestQuizId;
 	private int latestPlayerId;
-	private List<Quiz> quizzes;
+	private QuizList quizzes;
 	private List<Player> players;
+	private boolean addingQuiz=false;
+	
 	//private List<QuizPlayerIntersect> quizPlayerIntersects;
 	
 	public QuizServer() throws RemoteException {
@@ -45,47 +47,105 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 	}
 	
 	@Override
-	public void addQuiz(Quiz myQuiz) {
+	public synchronized void addQuiz(Quiz myQuiz) {
+		
 		if (myQuiz==null) {
 			throw new NullPointerException("quiz name is null");
 		}
+		
+		while (addingQuiz) { // this is a guard block to stop multiple setup clients updating quizlist at same time
+			try {
+				System.out.println("can't update as someone else doing so");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		
+		addingQuiz=true; // I now want to lock whilst updating the quiz, so tell everyone
+		notifyAll();
+		
 		quizzes.add(myQuiz);
+		flush(); // Design decision update saved file each time a quiz is added
+		
+		System.out.println("STarting thread sleep");
+		try { 
+			Thread.sleep(10000); 
+		} catch (InterruptedException ex) {
+			// nothing to do
+		}
+		System.out.println("Ending thread sleep");
+		addingQuiz=false; // I now want to release the lock
+		notifyAll();
 	}
 	
 	@Override
-	public List<Quiz> getAvailableQuizzes() {
-		if (quizzes.isEmpty()) return null;
-		else return quizzes;
+	public synchronized QuizList getAvailableQuizzes() {
+		if (quizzes.getSize()==0) return null;
+		
+		while (addingQuiz) { // this is a guard block to wait until a quizlist has been updated before sending out list of quizzes
+			try {
+				System.out.println("quiz list being updated, just waiting before responding");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		return quizzes;
 	}
 		 
 	@Override
-	public Player closeQuiz(Quiz quizToBeClosed) {
-		// check if quiz exists, return winner if it has one and then close quiz
+	public synchronized Player closeQuiz(int id) {
+		// check if quiz exists, return winner if it has one and then delete the quiz
+		// I could have just inactivated the quiz and then let a setup client re-activate it before others
+		// can play it again but I decided against it
 		// write contents to file each time a quiz is closed - could be overkill i.e.
 		// I could have only written to file when all quizzes had been closed but I didn't want to shutdown
 		// the server at that point as someone else might want to setup a new quiz and so if I didn't write
 		// to file after each quiz then I run the risk of closed but not saved quizzes if the server is shut down
 		// for any reason
-		Player myPlayer = null;
-		ListIterator<Quiz> q = quizzes.listIterator();
-		while (q.hasNext()) {
-				Quiz currentQuiz = q.next();
-				if (currentQuiz.getId() == quizToBeClosed.getId()) {
-					q.remove();
-					myPlayer = new PlayerImpl(1, "phil");
-					myPlayer.updateScore(1000);
-					break;
-				}
+
+		while (addingQuiz) { // this is a guard block to stop deleting from quizlist while someone is updating it
+			try {
+				System.out.println("can't update as someone else doing so");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		
+		addingQuiz=true; // I now want to lock whilst deleting the quiz, so tell everyone
+		notifyAll();
+				
+		Player myPlayer=null;
+		if (quizzes.get(id)!=null) {
+			// just a holder for getting the high score for quiz 1
+			myPlayer = new PlayerImpl(1, "phil");
+			myPlayer.updateScore(1000);
+			quizzes.delete(id);
 		}
 		
 		flush();
+		
+		try { 
+			Thread.sleep(10000); 
+		} catch (InterruptedException ex) {
+			// nothing to do
+		}
+		
+		addingQuiz=false; // I now want to release the lock
+		notifyAll();
+		
 		return myPlayer;
 	}
 	
 	public void initialise() {
 		// either initialize if first time called or check for and populate based on prior quizzes
 		if (!new File(FILENAME).exists()) {
-            quizzes = new ArrayList<Quiz>();
+            quizzes = new QuizLinkedList();
 			players = new ArrayList<Player>();
 			//quizPlayerIntersects = new ArrayList<QuizPlayerIntersect>();
 			latestQuizId=1; // first time through so initialise the quiz id seeds to 1
@@ -96,7 +156,7 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 				d = new ObjectInputStream(
                     new BufferedInputStream(
                             new FileInputStream(FILENAME)));
-                quizzes = (List<Quiz>) d.readObject();
+                quizzes = (QuizList) d.readObject();
 				players = (List<Player>) d.readObject();
 				//quizPlayerIntersects = (List<MeetingContactIntersect>) d.readObject();
 				LatestIDs storedIds = (LatestIDs) d.readObject();

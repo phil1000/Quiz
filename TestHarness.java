@@ -5,8 +5,32 @@ public class TestHarness {
 
 	public void launch() {
 		//testQuestionSetup();
-		Quiz myQuiz = testQuizSetup(1, "Capital Cities");
-		printQuiz(myQuiz);
+		//Quiz myQuiz = testQuizSetup(1, "Capital Cities");
+		Quiz myQuiz1 = testQuizSetup(1, "AAAA");
+		Quiz myQuiz2 = testQuizSetup(2, "BBBB");
+		Quiz myQuiz3 = testQuizSetup(3, "CCCC");
+		Quiz myQuiz4 = testQuizSetup(4, "DDDD");
+		Quiz myQuiz5 = testQuizSetup(5, "EEEE");
+		
+		QuizList myList = new QuizLinkedList(myQuiz2);
+		myList.add(myQuiz1);
+		myList.add(myQuiz3);
+		myList.add(myQuiz5);
+		myList.add(myQuiz4);
+		
+		//System.out.println("getting quiz 1" + myList.getQuiz(1).getName());
+		//System.out.println("getting quiz 3" + myList.getQuiz(3).getName());
+		//System.out.println("getting quiz 5" + myList.getQuiz(5).getName());
+		
+		System.out.println("printing a list before deletes, it has size="+myList.getSize());
+		myList.print();
+		myList.delete(1); // need to test deletion of 1, 2, 3, 4, 5
+		System.out.println("printing a list after deleting 1, it has size="+myList.getSize());
+		myList.print();
+		myList.add(myQuiz1);
+		System.out.println("printing a list after adding 5 back again, it has size="+myList.getSize());
+		myList.print();
+		printQuiz(myList.get(1));
 	}
 	
 	public void printQuiz(Quiz myQuiz) {
