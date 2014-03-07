@@ -1,7 +1,7 @@
 /**
  * Each question is stored with it's associated answer and up to 4 option.
  * <p/>
- * Questions have a number between 1 and 5
+ * Questions have an integer id starting from 1
  */
 public interface Question {
     /**

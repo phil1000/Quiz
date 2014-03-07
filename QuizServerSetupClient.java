@@ -12,7 +12,7 @@ import java.util.Collections;
 
 public class QuizServerSetupClient {
 
-	private static final int MAX_QUESTION_COUNT=2;
+	private static final int MAX_QUESTION_COUNT=2; // could make this a variable set by user but decided against
 	private static final int MAX_OPTION_COUNT=4;
 	
 	public void launch() {
@@ -42,9 +42,9 @@ public class QuizServerSetupClient {
 			
 			//3. Now call the remote methods
 			if (response==1) {
-				addNewQuiz(quizService);
+				addNewQuiz(quizService); // does all the work adding a quiz
 			} else {
-				closeQuiz(quizService);
+				closeQuiz(quizService); // does all the work closing a quiz
 			}
 			
 		} catch (MalformedURLException ex) {
@@ -59,10 +59,10 @@ public class QuizServerSetupClient {
 	public void addNewQuiz(QuizService quizService) throws RemoteException {
 		System.out.println("What is the name of the quiz?");
 		String name = System.console().readLine();
-		Quiz myQuiz = quizService.getQuizStub(name);
+		Quiz myQuiz = quizService.getQuizStub(name); // this gets a unique quiz Id and a quiz instance that we populate and then return to server
 		System.out.println("I got returned a quiz with id=" + myQuiz.getId() + " and name=" + myQuiz.getName());
 			
-		// Now get the questions answers and options ... need to strip out into new method
+		// Now get the questions answers and options 
 		List<Question> myQuestions = new ArrayList<Question>();
 		getQuestions(myQuestions);
 		//Add questions to Quiz and send to QuizServer

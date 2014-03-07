@@ -4,16 +4,16 @@
  */
 public interface Player {
     /**
-     * Returns the Name of the player.
+     * Returns the Id of the player.
      *
-     * @return the Name of the player.
+     * @return the Id of the player.
      */
     int getId();
 
 	 /**
-     * Returns the Id of the player.
+     * Returns the Name of the player.
      *
-     * @return Id of the player.
+     * @return name of the player.
      */
     String getName();
 	/**

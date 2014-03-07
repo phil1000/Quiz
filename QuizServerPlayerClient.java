@@ -69,8 +69,11 @@ public class QuizServerPlayerClient {
 		
 		System.out.println("What's your name?");
 		String name = System.console().readLine();
-		Player myPlayer = new PlayerImpl(1, name);
-
+		Player myPlayer = quizService.getPlayerStub(name, quizSelected);
+		System.out.println("You are playing quiz with id =" + quizSelected.getId() + " and name=" + quizSelected.getName());
+		if (quizSelected.getWinner()!=null) {
+			System.out.println("The current highest score for this quiz is: " + quizSelected.getWinner().getScore());
+		}
 		List<Question> myQuestions = quizSelected.getQuestions();
 
 		for (Question q : myQuestions) {
@@ -91,7 +94,7 @@ public class QuizServerPlayerClient {
 		
 		System.out.println("Quiz is completed and your final score is " + score);	
 		myPlayer.updateScore(score);
-		//quizService.updateQuiz(myPlayer, quizSelected);
+		quizService.updateQuiz(myPlayer, quizSelected);
 	}
 	
 	public static void main(String[] args) {		

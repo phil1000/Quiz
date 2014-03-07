@@ -25,25 +25,88 @@ import java.io.ObjectOutputStream;
 public class QuizServer extends UnicastRemoteObject implements QuizService {
 
 	private static final String FILENAME = "quizzes.txt";
-	private int latestQuizId;
-	private int latestPlayerId;
-	private QuizList quizzes;
-	private List<Player> players;
-	private boolean addingQuiz=false;
-	
-	//private List<QuizPlayerIntersect> quizPlayerIntersects;
+	private int latestQuizId; 				// unique ids for quizzes
+	private int latestPlayerId; 			// unique player ids
+	private QuizList quizzes; 				// list of currently available quizzes
+	private boolean addingQuiz=false; 		// these 3 fields are used within synchronised 
+	private boolean addingQuizId=false; 	// to ensure read write consistency with player and quiz Ids
+	private boolean addingPlayerId=false;	// and also the list of quizzes available
 	
 	public QuizServer() throws RemoteException {
-		initialise();
+		initialise(); //either open state last saved or initialise ids and quizlist on first startup
 	}
 	
 	@Override
-	public Quiz getQuizStub(String name) {
+	public synchronized Quiz getQuizStub(String name) {
+		while (addingQuizId) { // this is a guard block to stop two threads trying to get the same id
+			try {
+				System.out.println("can't update as someone else doing so");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		
+		addingQuizId=true; // I now want to lock whilst updating the quiz, so tell everyone
+		notifyAll();
+		
 		int id=latestQuizId;
 		Quiz myQuiz = new QuizImpl(id, name);
-		System.out.println("returning " + myQuiz.getId() + ":" + myQuiz.getName());
+		System.out.println("returning quiz stub" + myQuiz.getId() + ":" + myQuiz.getName());
 		latestQuizId++;
+
+		addingQuizId=false; // unlock and notify
+		notifyAll();
 		return myQuiz;
+	}
+	
+	@Override
+	public synchronized Player getPlayerStub(String name, Quiz quizSelected) {
+		while (addingPlayerId) { // this is a guard block to stop two threads trying to get the same id
+			try {
+				System.out.println("can't update as someone else doing so");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		
+		addingPlayerId=true; // I now want to lock whilst updating the player and id, so tell everyone
+		notifyAll();
+		
+		int id=latestPlayerId;
+		Player myPlayer = new PlayerImpl(id, name);
+		System.out.println("returning player stub " + myPlayer.getId() + ":" + myPlayer.getName());
+		latestPlayerId++;
+		addingPlayerId=false; // unlock and notify
+		notifyAll();
+		
+		while (addingQuiz) { // this is a guard block to stop deleting from quizlist while someone is updating it
+			try {
+				System.out.println("can't update as someone else doing so");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		
+		addingQuiz=true; // I now want to lock whilst deleting the quiz, so tell everyone
+		notifyAll();
+		
+		Quiz myQuiz = quizzes.get(quizSelected.getId());
+		if (myQuiz!=null) {
+				myQuiz.increasePlayerCount(); //update the quiz to say that it now has a player ... the quiz can't be deleted if playercount>0
+		}
+		
+		// flush(); Design decision to not save a new player to disc until they have finished a quiz and their score has been updated
+		
+		addingQuiz=false; // I now want to release the lock
+		notifyAll();
+		
+		return myPlayer;
 	}
 	
 	@Override
@@ -69,13 +132,6 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 		quizzes.add(myQuiz);
 		flush(); // Design decision update saved file each time a quiz is added
 		
-		System.out.println("STarting thread sleep");
-		try { 
-			Thread.sleep(10000); 
-		} catch (InterruptedException ex) {
-			// nothing to do
-		}
-		System.out.println("Ending thread sleep");
 		addingQuiz=false; // I now want to release the lock
 		notifyAll();
 	}
@@ -86,7 +142,7 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 		
 		while (addingQuiz) { // this is a guard block to wait until a quizlist has been updated before sending out list of quizzes
 			try {
-				System.out.println("quiz list being updated, just waiting before responding");
+				System.out.println("quiz list being updated, just waiting before responding with available quizzes");
 				wait(); // sleep until notified
 			}
 			catch (InterruptedException ex) {
@@ -97,16 +153,52 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 	}
 		 
 	@Override
+	public synchronized void updateQuiz(Player myPlayer, Quiz quizSelected) throws RemoteException {
+		System.out.println("received player " + myPlayer.getId() + ":" + myPlayer.getName() + ", score=" + myPlayer.getScore());
+		while (addingQuiz) { // this is a guard block to stop deleting from quizlist while someone is updating it
+			try {
+				System.out.println("can't update as someone else doing so");
+				wait(); // sleep until notified
+			}
+			catch (InterruptedException ex) {
+				// nothing to do
+			}
+		}
+		
+		addingQuiz=true; // I now want to lock whilst deleting the quiz, so tell everyone
+		notifyAll();
+		
+		Quiz myQuiz = quizzes.get(quizSelected.getId());
+		if (myQuiz!=null) {
+				if (myQuiz.getWinner()!=null) {
+					if (myPlayer.getScore()>myQuiz.getWinner().getScore()) {
+						System.out.println("new winning player and score: " + myPlayer.getName() + "," + myPlayer.getScore());
+						myQuiz.updateWinner(myPlayer);
+					}
+				} else {
+					myQuiz.updateWinner(myPlayer); // first to play quiz so automatically become highest scorer
+				}
+				myQuiz.reducePlayerCount(); //player finished game so update quiz instance to reflect this
+		}
+		
+		flush(); // Design decision update saved file each time a quiz is updated
+		
+		addingQuiz=false; // I now want to release the lock
+		notifyAll();
+	}
+	
+	@Override
 	public synchronized Player closeQuiz(int id) {
 		// check if quiz exists, return winner if it has one and then delete the quiz
 		// I could have just inactivated the quiz and then let a setup client re-activate it before others
 		// can play it again but I decided against it
-		// write contents to file each time a quiz is closed - could be overkill i.e.
-		// I could have only written to file when all quizzes had been closed but I didn't want to shutdown
-		// the server at that point as someone else might want to setup a new quiz and so if I didn't write
-		// to file after each quiz then I run the risk of closed but not saved quizzes if the server is shut down
+		// Write contents to file each time a quiz is closed - could be overkill i.e.
+		// I could have only written to file when all quizzes had been closed but then 
+		// run the risk of losing quizzes if the server is shut down
 		// for any reason
 
+		Player myPlayer=null;
+		
 		while (addingQuiz) { // this is a guard block to stop deleting from quizlist while someone is updating it
 			try {
 				System.out.println("can't update as someone else doing so");
@@ -120,20 +212,23 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 		addingQuiz=true; // I now want to lock whilst deleting the quiz, so tell everyone
 		notifyAll();
 				
-		Player myPlayer=null;
-		if (quizzes.get(id)!=null) {
-			// just a holder for getting the high score for quiz 1
-			myPlayer = new PlayerImpl(1, "phil");
-			myPlayer.updateScore(1000);
-			quizzes.delete(id);
-		}
-		
-		flush();
-		
-		try { 
-			Thread.sleep(10000); 
-		} catch (InterruptedException ex) {
-			// nothing to do
+		Quiz myQuiz = quizzes.get(id);
+		if (myQuiz!=null) {
+			if (myQuiz.getNumberofActivePlayers()>0) {
+				System.out.println("Can't close as the quiz is currently in play");
+			} else {
+				System.out.println("Closing quiz " + myQuiz.getId() + ":" + myQuiz.getName());
+				myPlayer=myQuiz.getWinner();
+				if (myPlayer!=null) {
+					System.out.print("The winner was " + myPlayer.getName());
+					System.out.print(" with a score of: " + myPlayer.getScore());
+					System.out.println("");
+				} else {
+					System.out.println("This quiz was never played");
+				}
+				quizzes.delete(id);
+				flush();
+			}
 		}
 		
 		addingQuiz=false; // I now want to release the lock
@@ -146,8 +241,6 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 		// either initialize if first time called or check for and populate based on prior quizzes
 		if (!new File(FILENAME).exists()) {
             quizzes = new QuizLinkedList();
-			players = new ArrayList<Player>();
-			//quizPlayerIntersects = new ArrayList<QuizPlayerIntersect>();
 			latestQuizId=1; // first time through so initialise the quiz id seeds to 1
 			latestPlayerId=1; // ditto for player
         } else {
@@ -157,8 +250,6 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
                     new BufferedInputStream(
                             new FileInputStream(FILENAME)));
                 quizzes = (QuizList) d.readObject();
-				players = (List<Player>) d.readObject();
-				//quizPlayerIntersects = (List<MeetingContactIntersect>) d.readObject();
 				LatestIDs storedIds = (LatestIDs) d.readObject();
 				this.latestQuizId=storedIds.latestQuizId++; // set the meeting id seeds to the value stored previously
 				this.latestPlayerId=storedIds.latestPlayerId++;
@@ -194,8 +285,6 @@ public class QuizServer extends UnicastRemoteObject implements QuizService {
 
         try {
             encode.writeObject(quizzes);
-            encode.writeObject(players);
-			//encode.writeObject(quizPlayerIntersects);
 			encode.writeObject(storedIds);
         } catch (IOException ex) {
             ex.printStackTrace();
