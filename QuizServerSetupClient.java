@@ -101,14 +101,18 @@ public class QuizServerSetupClient {
 	public void getQuestions(List<Question> myQuestions) {
 		 
 		int questionCount = 1;
+		
 		String answerOption;
 		// I have limited each question to having 4 possible answers, prefixed by A, B, C or D
 		String[][] options = { {"A",""}, {"B",""}, {"C",""}, {"D",""} }; 
 					
 		System.out.println("In this quiz you enter a question, four possible answers prefixed by A->D ");
 		System.out.println("and then the correct answer, which should be either A, B, C or D");
+		
+		System.out.println("How many questions do you want in your quiz?");
+		int maxQuestions = Integer.parseInt(System.console().readLine());
 			
-		while (questionCount<=MAX_QUESTION_COUNT) {
+		while (questionCount<=maxQuestions) {
 
 			System.out.println("");
 			System.out.println("Please enter Question:" + questionCount + " e.g. what is the capital of Slovakia");
