@@ -14,7 +14,7 @@ public interface QuizService extends Remote {
 	 public Quiz getQuizStub(String name) throws RemoteException;
 	 /**
 	 * Add a new quiz
-	 * @param Quiz to be added
+	 * @param newQuiz to be added
 	 */
 	 public void addQuiz(Quiz newQuiz) throws RemoteException;
 	 /**
@@ -26,13 +26,14 @@ public interface QuizService extends Remote {
 	 /**
 	 * returns a Player stub
 	 * @param name of the player
+	 * @param quizSelected the quiz to be played
 	 * @return Player instance with an allocated unique id
 	 */
 	 public Player getPlayerStub(String name, Quiz quizSelected) throws RemoteException;
 	 /**
 	 * Update an existing quiz with new player details
-	 * @param Player who's just played the quiz
-	 * @param Quiz just played
+	 * @param myPlayer who's just played the quiz
+	 * @param quizSelected just played
 	 */
 	 public void updateQuiz(Player myPlayer, Quiz quizSelected) throws RemoteException;
 	 /**

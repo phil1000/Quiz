@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
+/**
+ * This program launches the quiz player client
+ * it takes no input parameters
+ * <p/>
+ */
 public class QuizServerPlayerClient {
 	
 	public void launch() {

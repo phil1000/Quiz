@@ -5,6 +5,12 @@ import java.rmi.registry.*;
 import java.rmi.Naming;
 import java.net.MalformedURLException;
 
+/**
+ * This program launches the quiz server and must be up and running for quiz to work
+ * it takes no input parameters
+ * <p/>
+ */
+ 
 public class QuizServerLauncher {
 
 	public void launch() {

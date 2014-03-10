@@ -6,7 +6,7 @@ public interface Player {
     /**
      * Returns the Id of the player.
      *
-     * @return the Id of the player.
+     * @return id of the player.
      */
     int getId();
 
@@ -19,14 +19,14 @@ public interface Player {
 	/**
      * Updates the players score.
      *
-     * @param score.
+     * @param score
      */
     void updateScore(int score);
 	
     /**
      * Returns the players score.
      *
-     * @return score.
+     * @return score
      */
     int getScore();
 }

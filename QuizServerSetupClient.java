@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
+/**
+ * This program launches the quiz setup client
+ * it takes no input parameters
+ * <p/>
+ */
+ 
 public class QuizServerSetupClient {
 
 	private static final int MAX_QUESTION_COUNT=2; // could make this a variable set by user but decided against

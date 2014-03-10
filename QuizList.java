@@ -6,7 +6,7 @@ public interface QuizList {
 	/**
      * Add a Quiz to the list
      *
-     * @param Quiz to be added.
+     * @param newQuiz to be added.
      */
 	void add(Quiz newQuiz);
 	/**

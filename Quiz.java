@@ -10,49 +10,49 @@ public interface Quiz {
     /**
      * Returns the id of the Quiz.
      *
-     * @return the id of the Quiz.
+     * @return id of the Quiz.
      */
     int getId();
 	
 	/**
      * Returns the address of nextQuiz.
      *
-     * @return pointer to next Quiz.
+     * @return nextQuiz
      */
     Quiz getNext();
 	
 	/**
      * Set a pointer to next Quiz in list.
      *
-     * @param pointer to next Quiz.
+     * @param nextQuiz
      */
     void setNext(Quiz nextQuiz);
 	
 	/**
      * Returns the address of priorQuiz.
      *
-     * @return pointer to prior Quiz.
+     * @return priorQuiz
      */
     Quiz getPrior();
 	
 	/**
      * Set a pointer to prior Quiz in list.
      *
-     * @param pointer to prior Quiz.
+     * @param priorQuiz
      */
     void setPrior(Quiz priorQuiz);
 	
 	/**
      * Returns the name of the Quiz.
      *
-     * @return name of the Quiz.
+     * @return quizName
      */
 	String getName();
 
     /**
      * Return the quiz questions, options and answers.
      *
-     * @return questions.
+     * @return questions
      */
     List<Question> getQuestions();
 	
@@ -65,13 +65,13 @@ public interface Quiz {
 	/**
      * Gets the winner of the quiz
      *
-	 * @return the Player who has the highest score for this quiz
+	 * @return Player who has the highest score for this quiz
      */
 	Player getWinner();
 	/**
      * Gets the active number of players for the passed quiz id
      *
-	 * @return number of players
+	 * @return playerCount
      */
 	int getNumberofActivePlayers();
 	/**
@@ -87,7 +87,7 @@ public interface Quiz {
 	/**
      * updates the current leading scorer for this quiz
      *
-     * @param Player with the new highest score
+     * @param newWinner with the new highest score
      */
 	void updateWinner(Player newWinner);
 }

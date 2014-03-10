@@ -7,14 +7,14 @@ public interface Question {
     /**
      * Returns the ID of the question.
      *
-     * @return the ID of the question.
+     * @return id of the question.
      */
     int getId();
 
     /**
      * Returns the question text.
      *
-     * @return question text.
+     * @return questionText.
      */
     String getQuestion();
 
@@ -62,6 +62,7 @@ public interface Question {
 	/**
      * Checks the answer provided and responds with a true or false.
      *
+	 * @param suppliedAnswer is the answer to be checked
      * @return true or false, depending on whether a correct answer has been provided.
      */
 	boolean checkAnswer(String suppliedAnswer);
