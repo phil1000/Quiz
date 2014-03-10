@@ -26,13 +26,20 @@ public class QuizServerSetupClient {
 		// first of all check what they want to do i.e.
 		// option 1, setup a new quiz, option 2 close an existing quiz or just finish if neither 1 or 2 is chosen as it would be an invalid option
 		
-		int reponse = 0;
+		int response = 0;
 		
 		System.out.println("Please enter either 1 to ADD a new Quiz or 2 to CLOSE an existing quiz?");
-		int response = Integer.parseInt(System.console().readLine());
-			
-		if ( (response!=1) && (response!=2) ) {
-			System.out.println("Invalid response, you need to choose either 1 or 2, bye for now");
+		
+		try {
+			response = Integer.parseInt(System.console().readLine());
+			if ( (response!=1) && (response!=2) ) {
+				System.out.println("Invalid response, you need to choose either 1 or 2, bye for now");
+				return;
+			}
+		} catch (NumberFormatException nfe) {
+			// but it throws an exception if the String doesn't look
+			// like any integer it recognizes
+			System.out.println("That's not a number! Try again.");
 			return;
 		}
 		
@@ -78,6 +85,9 @@ public class QuizServerSetupClient {
 	
 	public void closeQuiz(QuizService quizService) throws RemoteException {
 
+		boolean validResponse=false;
+		int response=0;
+		
 		QuizList availableQuizzes = quizService.getAvailableQuizzes();
 		if (availableQuizzes==null) {
 			System.out.println("No quizzes found");
@@ -88,7 +98,17 @@ public class QuizServerSetupClient {
 		availableQuizzes.print();
 		
 		System.out.println("Please enter id of quiz to close e.g. 1, 2 etc");
-		int response = Integer.parseInt(System.console().readLine());
+		
+		while (!validResponse) {
+			try {
+				response = Integer.parseInt(System.console().readLine());
+				validResponse=true;
+			} catch (NumberFormatException nfe) {
+				// but it throws an exception if the String doesn't look
+				// like any integer it recognizes
+				System.out.println("That's not a number! Try again.");
+			}
+		}
 		
 		if (availableQuizzes.get(response)!=null) {
 			Player winner = quizService.closeQuiz(response);
@@ -107,6 +127,8 @@ public class QuizServerSetupClient {
 	public void getQuestions(List<Question> myQuestions) {
 		 
 		int questionCount = 1;
+		int maxQuestions = 0;
+		boolean validQuestionCount=false;
 		
 		String answerOption;
 		// I have limited each question to having 4 possible answers, prefixed by A, B, C or D
@@ -116,7 +138,17 @@ public class QuizServerSetupClient {
 		System.out.println("and then the correct answer, which should be either A, B, C or D");
 		
 		System.out.println("How many questions do you want in your quiz?");
-		int maxQuestions = Integer.parseInt(System.console().readLine());
+		
+		while (!validQuestionCount) {
+			try {
+				maxQuestions = Integer.parseInt(System.console().readLine());
+				validQuestionCount=true;
+			} catch (NumberFormatException nfe) {
+				// but it throws an exception if the String doesn't look
+				// like any integer it recognizes
+				System.out.println("That's not a number! Try again.");
+			}
+		}
 			
 		while (questionCount<=maxQuestions) {
 

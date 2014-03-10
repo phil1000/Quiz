@@ -47,6 +47,8 @@ public class QuizServerPlayerClient {
 	public Quiz selectQuiz(QuizService quizService) throws RemoteException {
 
 		Quiz quizSelected=null;
+		int response=0;
+		boolean validResponse=false;
 		
 		QuizList availableQuizzes = quizService.getAvailableQuizzes();
 		if (availableQuizzes==null) {
@@ -57,7 +59,16 @@ public class QuizServerPlayerClient {
 		System.out.println("The available quizzes are as follows, please enter id of the quiz you want to play");
 		availableQuizzes.print();
 
-		int response = Integer.parseInt(System.console().readLine());
+		while (!validResponse) {
+			try {
+				response = Integer.parseInt(System.console().readLine());
+				validResponse=true;
+			} catch (NumberFormatException nfe) {
+				// but it throws an exception if the String doesn't look
+				// like any integer it recognizes
+				System.out.println("That's not a number! Try again.");
+			}
+		}
 		
 		Quiz myQuiz=availableQuizzes.get(response);
 		if (myQuiz!=null) {

@@ -33,6 +33,8 @@ HOW TO RUN THE PROGRAMS
 	PLAYER 	- java -Djava.security.policy=securityPolicy.txt QuizServerPlayerClient
 	
 The security policy file needs to be located in same directory as the executables and is called securityPolicy.txt
-The game data is persisted within quizzes.txt, which is also located within the same directory
+
+The game data is persisted within quizzes.txt, which is also located within the same directory - If you want to start a new quiz session 
+from scratch i.e. initialise all id's a delete all existing quizzes then delete quizzes.txt
 
 The above programs do not take input parameters and the only property file is the security policy file
